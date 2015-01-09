@@ -18,15 +18,25 @@ int eXit(Funix *funix, int argCount, const char *arguments[])
 }
 
   // checks "exit" command, returns 0 on proper exit
-void getCommand(Funix *funix, char *command) // writes prompt and reads command
+
+  // writes prompt and reads command
+void getCommand(Funix *funix, char *command)
 {
+  printf("# ");
+
+  fgets(command, COMMAND_LENGTH, stdin);
+  strtok(command, "\n");
   return;
-}
+} // getCommand()
 
 void init(Funix *funix) // creates currentDirectory, and sets umask and time
 {
+  funix->currentDirectory->name = "/";
+  funix->time = 0;
+  funix->umask = 0;
+
   return;
-}
+} // init()
 
 void ls(Funix *funix, int argCount, const char *arguments[])
 {
@@ -42,26 +52,17 @@ void mkdir(Funix *funix, int argCount, const char *arguments[])
   // calls mkdir() with currentDirectory as one of its parameters
 int processCommand(Funix *funix, char *command) // returns 0 on proper exit
 {
-  int value = 0;
-
-  return value;
+  return 0;
 }
 void run(Funix *funix) // reads and processes commands in a loop until proper exit
 {
   char command[COMMAND_LENGTH];
-  char *newline;
+  init(funix);
+
   do
   {
-	printf("# ");
-    fgets(command, COMMAND_LENGTH, stdin);
-	newline = strchr(command, '\n');
-	if(newline)
-	  *newline = 0;
-
-	if(strcmp(command, "cd") == 0)
-	{
-	  printf("%s", command);
-	}
+	getCommand(funix, command);
+	printf("%s\n", command);
   } while(strcmp(command, "exit") != 0);
   return;
 }
