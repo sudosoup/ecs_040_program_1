@@ -2,10 +2,10 @@
 #ifndef DIRECTORY_H
 #define DIRECTORY_H
 
-#include "permissions.h"
-
 #define COMMAND_LENGTH 80
 #define MAX_SUBDIRECTORIES 3
+
+#include "permissions.h"
 
 typedef struct Directory
 {
@@ -17,7 +17,6 @@ typedef struct Directory
   struct Directory **subdirectories;
 } Directory;
 
-void createDirectory(Directory *rootDirectory, int umask);
 void showPath(Directory *currentDirectory);
 
 #endif

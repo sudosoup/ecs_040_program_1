@@ -8,9 +8,10 @@
 
 void cd(Funix *funix, int argCount, const char *arguments[])
 {
-/*  if(argCount != 2)
+/*	// if the input format is wrong
+  if(argCount != 2)
 	printf("usage: cd directoryName\n");
-  else
+  else // if the user input is valid
   {
 	int i, index = -1;
 
@@ -20,8 +21,15 @@ void cd(Funix *funix, int argCount, const char *arguments[])
 	  if(strcmp(arguments[1], funix->currentDirectory->subdirectories->name))
 		index = i;
 	} // search for a directory name match
-  } */
-  return;
+
+	if(strcmp(arguments[1], "..") == 0)
+	{
+      if(funix->currentDirectory->parentDirectory == NULL)
+        funix->currentDirectory = funix->currentDirectory;
+
+	}
+  }
+  return;*/
 }
 
   // calls cd() with currentDirectory as one of its parameters
