@@ -1,4 +1,4 @@
-// Authors: Yage Hu, Thomas Connor Campbell
+// Authors: Yage Hu (998450649), Thomas Connor Campbell
 
 #include <stdio.h>
 #include <string.h>
@@ -8,6 +8,19 @@
 
 void cd(Funix *funix, int argCount, const char *arguments[])
 {
+/*  if(argCount != 2)
+	printf("usage: cd directoryName\n");
+  else
+  {
+	int i, index = -1;
+
+	for(i = 0; i < funix->currentDirectory->numSubdirectories; i++)
+	{
+		// if the directory names match, set index = i
+	  if(strcmp(arguments[1], funix->currentDirectory->subdirectories->name))
+		index = i;
+	} // search for a directory name match
+  } */
   return;
 }
 
@@ -27,18 +40,20 @@ void getCommand(Funix *funix, char *command)
   writePrompt(funix);
   fgets(command, COMMAND_LENGTH, stdin);
 
-   // eliminate trailing newline chracter
-  if(strlen(command))
-    strtok(command, "\n");
-
   return;
 } // getCommand()
 
 void init(Funix *funix) // creates currentDirectory, and sets umask and time
 {
+  funix->currentDirectory = (Directory*) malloc(sizeof(Directory));
+  funix->currentDirectory->name = (char*) malloc(sizeof(char) * COMMAND_LENGTH);
+  funix->currentDirectory->subdirectories = (Directory**) malloc(sizeof(Directory*) * MAX_SUBDIRECTORIES);
+  funix->currentDirectory->name[0] = '/';
+  funix->currentDirectory->numSubdirectories = 0;
+  funix->currentDirectory->parentDirectory = NULL;
+  funix->currentDirectory->permissions.permissions = 7;
   funix->time = 0;
   funix->umask = 0;
-  createDirectory(funix->currentDirectory, funix->umask);
 
   return;
 } // init()
@@ -75,7 +90,10 @@ void ls(Funix *funix, int argCount, const char *arguments[])
         printf("%s\n", funix->currentDirectory->subdirectories[i]->name);
     } // else the user input is just ls
   } // else the number of arguments is either 1 or 2
+
   funix->time++;
+
+  return;
 } // ls()
 
   // calls ls() with currentDirectory as one of its parameters
@@ -84,13 +102,11 @@ void mkdir(Funix *funix, int argCount, const char *arguments[])
   if(argCount != 2)
   {
 	printf("usage: mkdir directory_name\n");
-	return;
   } // if the number of arguments in mkdir is wrong
   else if(funix->currentDirectory->numSubdirectories + 1 > MAX_SUBDIRECTORIES)
   {
 	printf("mkdir: %s already contains the maximum number of directories\n",
 	  funix->currentDirectory->name);
-	return;
   } // if the number of subdirectories has already reached max value
   else
   {
@@ -119,6 +135,9 @@ void mkdir(Funix *funix, int argCount, const char *arguments[])
 	strcpy(funix->currentDirectory->
 	  subdirectories[funix->currentDirectory->numSubdirectories]->name,
 	  arguments[1]);
+	funix->currentDirectory->
+	  subdirectories[funix->currentDirectory->numSubdirectories]->
+	  timeMod = funix->time;
 	funix->currentDirectory->
 	  subdirectories[funix->currentDirectory->numSubdirectories]->
 	  subdirectories = (Directory**) malloc(MAX_SUBDIRECTORIES *
@@ -154,6 +173,66 @@ void mkdir(Funix *funix, int argCount, const char *arguments[])
 
 int processCommand(Funix *funix, char *command) // returns 0 on proper exit
 {
+  int argCount, i;
+  char test = 'a';
+  char *testptr = &test;
+  char *temp = (char*) malloc((sizeof(char)) * COMMAND_LENGTH);
+
+  strcpy(temp, command);
+
+  for(argCount = -1; testptr != NULL; argCount++)
+  {
+	  // start parsing
+	if(argCount == -1)
+      testptr = strtok(temp, " \n");
+	else // resume from last spot in the string
+	  testptr = strtok(NULL, " \n");
+  } // for loop tests for how many arguments there are
+
+  const char **arguments = (const char**) malloc((sizeof(char*)) * argCount);
+
+    // allocate memory for arguments
+  for(i = 0; i < argCount; i++)
+	  *(arguments + i) = (char*) malloc((sizeof(char)) * argCount);
+
+    // parse first argument
+  arguments[0] = strtok(command, " \n");
+
+    // parse rest of the arguments
+  for(i = 1; i < argCount; i++)
+	arguments[i] = strtok(NULL, " \n");
+
+    // if the user does not input anything
+  if(arguments[0] == NULL)
+	return 1;
+  else if(strcmp(arguments[0], "mkdir") == 0)
+  {
+	mkdir(funix, argCount, arguments);
+	return 1;
+  }
+  else if(strcmp(arguments[0], "ls") == 0)
+  {
+	ls(funix, argCount, arguments);
+	return 1;
+  }
+  else if(strcmp(arguments[0], "cd") == 0)
+  {
+	cd(funix, argCount, arguments);
+	return 1;
+  }
+  else if(strcmp(arguments[0], "umask") == 0)
+  {
+	umask(funix, argCount, arguments);
+	return 1;
+  }
+  else if(strcmp(arguments[0], "exit") == 0)
+	return(eXit(funix, argCount, arguments));
+  else
+  {
+	printf("%s: Command not found.\n", arguments[0]);
+	return 1;
+  }
+
   return 0;
 } // processCommand()
 
