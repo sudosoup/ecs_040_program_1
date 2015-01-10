@@ -8,4 +8,6 @@ typedef struct Permissions
   short permissions;
 } Permissions;
 
+Permissions createPermissions(int umask);
+
 #endif
