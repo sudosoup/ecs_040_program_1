@@ -9,5 +9,6 @@ typedef struct Permissions
 } Permissions;
 
 Permissions createPermissions(int umask);
+void printPermissions(Permissions *permissions);
 
 #endif
