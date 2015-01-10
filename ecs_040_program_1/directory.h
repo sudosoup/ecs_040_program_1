@@ -14,7 +14,7 @@ typedef struct Directory
   int numSubdirectories;
   struct Directory *parentDirectory;
   struct Permissions permissions;
-  struct Directory *subdirectories[];
+  struct Directory **subdirectories;
 } Directory;
 
 void createDirectory(Directory *rootDirectory, int umask);
